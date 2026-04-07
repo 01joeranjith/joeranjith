@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Joe Ranjith — IoT & Embedded Systems</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg2: #111111;
+      --card: #141414;
+      --border: rgba(255, 255, 255, 0.08);
+      --cyan: #e5e5e5;
+      --cyan2: #ffffff;
+      --amber: #888888;
+      --white: #ededed;
+      --muted: #a3a3a3;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    /* ── PRELOADER ── */
+    #preloader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 1s ease-in-out, visibility 1s;
+    }
+
+    #preloader-canvas {
+      position: absolute;
+      inset: 0;
+    }
+
+    .preloader-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      pointer-events: none;
+    }
+
+    .preloader-logo {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--cyan);
+      letter-spacing: -0.05em;
+      text-shadow: none;
+    }
+
+    .preloader-text {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 0.4;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font-mono);
+      overflow-x: hidden;
+    }
+
+    /* ── GRID BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 4rem;
+      background: rgba(10, 10, 10, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--cyan);
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--cyan);
+    }
+
+    /* ── GLASSMORPHISM ── */
+    .info-row,
+    .skill-card,
+    .project-item,
+    .edu-card,
+    .achieve-card,
+    .contact-link {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8rem 4rem 4rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .hero-tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .hero-tag::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--cyan);
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 8vw, 7rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      color: var(--white);
+      margin-bottom: 0.2em;
+    }
+
+    h1 .accent {
+      color: var(--cyan);
+    }
+
+    .hero-sub {
+      font-size: clamp(0.85rem, 1.5vw, 1rem);
+      color: var(--muted);
+      max-width: 540px;
+      line-height: 1.8;
+      margin: 2rem 0 3rem;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.85rem 2rem;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--cyan);
+      color: var(--bg);
+      border: 1px solid var(--cyan);
+      font-weight: 500;
+    }
+
+    .btn-primary:hover {
+      background: var(--cyan2);
+      border-color: var(--cyan2);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--cyan);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 5rem;
+      padding-top: 3rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── SECTION WRAPPER ── */
+    .section-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 6rem 4rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .section-num {
+      font-size: 0.65rem;
+      color: var(--cyan);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--white);
+    }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── ABOUT ── */
+    #about {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .about-text {
+      color: var(--muted);
+      line-height: 1.9;
+      font-size: 0.88rem;
+    }
+
+    .about-text p+p {
+      margin-top: 1.2rem;
+    }
+
+    .about-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem 1.2rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--card);
+    }
+
+    .info-key {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .info-val {
+      font-size: 0.8rem;
+      color: var(--white);
+    }
+
+    .info-val a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    .info-val a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── SKILLS ── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .skill-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.8rem;
+      background: var(--card);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .skill-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-3px);
+    }
+
+    .skill-card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .skill-card-title {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--cyan);
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .skill-tag {
+      font-size: 0.65rem;
+      padding: 0.3rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--muted);
+      background: var(--bg);
+    }
+
+    /* ── PROJECTS ── */
+    #projects {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .projects-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .project-item {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--card);
+      transition: border-color 0.25s;
+    }
+
+    .project-item:hover {
+      border-color: var(--cyan);
+    }
+
+    .project-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.8rem 2rem;
+      cursor: pointer;
+      gap: 2rem;
+      user-select: none;
+    }
+
+    .project-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .project-index {
+      font-size: 0.65rem;
+      color: var(--cyan);
+      min-width: 2rem;
+    }
+
+    .project-name {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .project-year {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .project-badge {
+      font-size: 0.6rem;
+      padding: 0.25rem 0.8rem;
+      border-radius: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: rgba(255, 184, 0, 0.1);
+      color: var(--amber);
+      border: 1px solid rgba(255, 184, 0, 0.3);
+    }
+
+    .project-body {
+      display: none;
+      padding: 0 2rem 2rem 5.5rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.8;
+    }
+
+    .project-body.open {
+      display: block;
+    }
+
+    .project-body ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .project-body ul li::before {
+      content: '→ ';
+      color: var(--cyan);
+    }
+
+    /* ── EDUCATION ── */
+    .edu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .edu-card {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 2rem;
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--card);
+    }
+
+    .edu-year {
+      font-size: 0.7rem;
+      color: var(--cyan);
+      padding-top: 0.2rem;
+    }
+
+    .edu-degree {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .edu-school {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .edu-score {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 0.25rem 0.7rem;
+      background: rgba(0, 229, 255, 0.08);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 2px;
+    }
+
+    /* ── ACHIEVEMENTS ── */
+    #achievements {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .achieve-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .achieve-card {
+      padding: 1.5rem 1.8rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--card);
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .achieve-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--cyan);
+    }
+
+    .achieve-card:hover {
+      border-color: var(--cyan);
+      transform: translateX(4px);
+    }
+
+    .achieve-card-title {
+      font-size: 0.82rem;
+      color: var(--white);
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+      line-height: 1.4;
+    }
+
+    .achieve-card-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    /* ── CONTACT ── */
+    .contact-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .contact-text h2 {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .contact-text p {
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.8;
+    }
+
+    .contact-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-decoration: none;
+      color: var(--white);
+      background: var(--card);
+      transition: border-color 0.2s, transform 0.2s;
+      font-size: 0.82rem;
+    }
+
+    .contact-link:hover {
+      border-color: var(--cyan);
+      transform: translateX(6px);
+      color: var(--cyan);
+    }
+
+    .contact-link-icon {
+      font-size: 1.1rem;
+      width: 1.5rem;
+      text-align: center;
+    }
+
+    /* ── CONTACT FORM ── */
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin-top: 2.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      color: var(--white);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      border-radius: 4px;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--cyan);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .btn-submit {
+      background: var(--cyan);
+      color: var(--bg);
+      border: none;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: background 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover {
+      background: var(--cyan2);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.7rem;
+      color: var(--muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── CURSOR DOT ── */
+    .cursor {
+      width: 6px;
+      height: 6px;
+      background: var(--cyan);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      transition: transform 0.1s;
+    }
+
+    .cursor-ring {
+      width: 30px;
+      height: 30px;
+      border: 1px solid rgba(229, 229, 229, 0.4);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 9998;
+      transition: transform 0.15s, left 0.12s, top 0.12s;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-tag {
+      animation: fadeUp 0.6s ease both;
+    }
+
+    h1 {
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    .hero-sub {
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    .hero-btns {
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+
+    .hero-stats {
+      animation: fadeUp 0.7s 0.45s ease both;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav {
+        padding: 1rem 1.5rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      #hero,
+      .section-wrap {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+
+      .about-grid,
+      .contact-inner {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .edu-card {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+
+      .hero-stats {
+        gap: 2rem;
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 3D PRELOADER -->
+  <div id="preloader">
+    <canvas id="preloader-canvas"></canvas>
+    <div class="preloader-content">
+      <div class="preloader-logo">JR.</div>
+      <div class="preloader-text">Initializing System...</div>
+    </div>
+  </div>
+
+  <div class="cursor" id="cur"></div>
+  <div class="cursor-ring" id="curRing"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">JR.</div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div style="max-width:1100px;margin:0 auto;width:100%;">
+      <div class="hero-tag">IoT Engineer &amp; Embedded Systems</div>
+      <h1>Joe<br><span class="accent">Ranjith</span> L.</h1>
+      <p class="hero-sub">
+        Innovative Electrical & Electronics Engineer specializing in scalable IoT ecosystems and embedded systems
+        design. Transforming constrained hardware into intelligent, cloud-connected solutions for agriculture and
+        industry.
+      </p>
+      <div class="hero-btns">
+        <a href="#projects" class="btn btn-primary">View Projects</a>
+        <a href="resume.pdf" target="_blank" download class="btn btn-secondary">Download Resume</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">3+</div>
+          <div class="stat-label">Field-Deployed Projects</div>
+        </div>
+        <div>
+          <div class="stat-num">2nd</div>
+          <div class="stat-label">Vel Tech Expo Prize</div>
+        </div>
+        <div>
+          <div class="stat-num">SIH</div>
+          <div class="stat-label">National Participant</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-wrap">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">About</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="about-grid">
+        <div class="about-text">
+          <p>I am an ambitious Electrical & Electronics Engineering student at S.A. Engineering College, Chennai, driven
+            by a deep interest in software development and bridging the gap between physical hardware and digital
+            ecosystems.</p>
+          <p>Currently, I am building scalable AI, IoT, and high-performance Web applications. My engineering background
+            allows me to design intricate circuits and integrate precise sensors, while my software expertise ensures
+            seamless cloud deployments and intelligent automation.</p>
+          <p>My ultimate goal is to continuously innovate within the embedded and AI landscape, pushing the boundaries
+            of what constrained hardware can achieve, while advancing my career towards challenging, impactful roles in
+            the tech industry.</p>
+        </div>
+        <div class="about-info">
+          <div class="info-row">
+            <span class="info-key">Location</span>
+            <span class="info-val">Chennai, Tamil Nadu</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Email</span>
+            <span class="info-val"><a href="mailto:joeranjith26@gmail.com">joeranjith26@gmail.com</a></span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Phone</span>
+            <span class="info-val">+91 89394 58959</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">LinkedIn</span>
+            <span class="info-val"><a href="https://linkedin.com/in/joe-ranjith" target="_blank">joe-ranjith</a></span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">GitHub</span>
+            <span class="info-val"><a href="https://github.com/01joeranjith" target="_blank">01joeranjith</a></span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Status</span>
+            <span class="info-val" style="color:var(--cyan);">Open to opportunities</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="section-wrap">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">Skills</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="skills-grid">
+        <div class="skill-card">
+          <div class="skill-card-icon"
+            style="font-family:var(--font-mono); font-size:0.7rem; color:var(--muted); margin-bottom:0.8rem;">// 01
+          </div>
+          <div class="skill-card-title">AI & Intelligent Automation</div>
+          <div class="skill-tags">
+            <span class="skill-tag">Prompt Engineering</span>
+            <span class="skill-tag">AI Optimization</span>
+            <span class="skill-tag">AI + IoT Systems</span>
+            <span class="skill-tag">Smart Monitoring</span>
+            <span class="skill-tag">Prediction Models</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-card-icon"
+            style="font-family:var(--font-mono); font-size:0.7rem; color:var(--muted); margin-bottom:0.8rem;">// 02
+          </div>
+          <div class="skill-card-title">Programming</div>
+          <div class="skill-tags">
+            <span class="skill-tag">C</span>
+            <span class="skill-tag">C++</span>
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">Arduino / Embedded C</span>
+            <span class="skill-tag">Data Structures</span>
+            <span class="skill-tag">OOP</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-card-icon"
+            style="font-family:var(--font-mono); font-size:0.7rem; color:var(--muted); margin-bottom:0.8rem;">// 03
+          </div>
+          <div class="skill-card-title">IoT & Embedded</div>
+          <div class="skill-tags">
+            <span class="skill-tag">ESP8266</span>
+            <span class="skill-tag">ESP32</span>
+            <span class="skill-tag">MQ-2 Sensor</span>
+            <span class="skill-tag">NPK Sensor</span>
+            <span class="skill-tag">Real-Time Acquisition</span>
+            <span class="skill-tag">Circuit Design</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-card-icon"
+            style="font-family:var(--font-mono); font-size:0.7rem; color:var(--muted); margin-bottom:0.8rem;">// 04
+          </div>
+          <div class="skill-card-title">Cloud & Connectivity</div>
+          <div class="skill-tags">
+            <span class="skill-tag">Firebase</span>
+            <span class="skill-tag">ThingSpeak</span>
+            <span class="skill-tag">Blynk</span>
+            <span class="skill-tag">REST APIs</span>
+            <span class="skill-tag">Web Technologies</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-card-icon"
+            style="font-family:var(--font-mono); font-size:0.7rem; color:var(--muted); margin-bottom:0.8rem;">// 05
+          </div>
+          <div class="skill-card-title">Industrial & Design</div>
+          <div class="skill-tags">
+            <span class="skill-tag">PLC Programming</span>
+            <span class="skill-tag">SCADA</span>
+            <span class="skill-tag">PSCAD Simulation</span>
+            <span class="skill-tag">AutoCAD (Electrical)</span>
+            <span class="skill-tag">Revit</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-card-icon"
+            style="font-family:var(--font-mono); font-size:0.7rem; color:var(--muted); margin-bottom:0.8rem;">// 06
+          </div>
+          <div class="skill-card-title">Tools & Technologies</div>
+          <div class="skill-tags">
+            <span class="skill-tag">3D Printing</span>
+            <span class="skill-tag">CAD Modelling</span>
+            <span class="skill-tag">Git & GitHub</span>
+            <span class="skill-tag">Hardware Optimization</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="section-wrap">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">Projects</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="projects-list">
+
+        <div class="project-item">
+          <div class="project-header" onclick="toggleProject(this)">
+            <div class="project-left">
+              <span class="project-index">01</span>
+              <div>
+                <div class="project-name">Low-Cost Soil Nutrient Analyser</div>
+                <div class="project-year">2024 – 2025</div>
+              </div>
+            </div>
+            <span class="project-badge">🏆 2nd Prize</span>
+          </div>
+          <div class="project-body">
+            <ul>
+              <li>Developed an NPK sensor-based system under ₹3,000 for affordable real-field soil testing</li>
+              <li>Built a Firebase-backed web app providing real-time soil monitoring and fertilizer recommendations
+              </li>
+              <li>Designed a 3D-printed, weather-resistant enclosure for field deployment</li>
+              <li>Presented at Smart India Hackathon, Vel Tech Expo, and CMR Project Expo</li>
+              <li>Won 2nd Prize at Vel Tech High Tech Project Expo (50+ competing teams)</li>
+              <li>Showcased at TANCAM TN Impact Program 2026</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="project-item">
+          <div class="project-header" onclick="toggleProject(this)">
+            <div class="project-left">
+              <span class="project-index">02</span>
+              <div>
+                <div class="project-name">Energy & Water Monitoring System</div>
+                <div class="project-year">TANCAM 2026</div>
+              </div>
+            </div>
+            <span class="project-badge">Industry Deploy</span>
+          </div>
+          <div class="project-body">
+            <ul>
+              <li>Built a low-cost IoT system for real-time energy &amp; water usage monitoring in MSME industries</li>
+              <li>Used ESP32, PZEM-004T, and YF-S201 sensors to measure voltage, current, power, energy, and flow rate
+              </li>
+              <li>Deployed a web-based dashboard for live monitoring, improving resource efficiency and fault awareness
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="project-item">
+          <div class="project-header" onclick="toggleProject(this)">
+            <div class="project-left">
+              <span class="project-index">03</span>
+              <div>
+                <div class="project-name">IoT Gas & Smoke Detection System</div>
+                <div class="project-year">Jan – Mar 2024</div>
+              </div>
+            </div>
+            <span class="project-badge">Safety IoT</span>
+          </div>
+          <div class="project-body">
+            <ul>
+              <li>Built real-time LPG leak and smoke detection using MQ-2 sensor with ESP8266 for instant mobile alerts
+              </li>
+              <li>Added buzzer and LED safety indicators for on-site alerts</li>
+              <li>Optimized firmware for continuous low-power monitoring</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- EDUCATION -->
+  <section id="education">
+    <div class="section-wrap">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Education</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="edu-list">
+        <div class="edu-card">
+          <div class="edu-year">2023 – 2027</div>
+          <div>
+            <div class="edu-degree">B.E. Electrical &amp; Electronics Engineering</div>
+            <div class="edu-school">S.A. Engineering College, Chennai</div>
+            <span class="edu-score">CGPA: 7.60</span>
+          </div>
+        </div>
+        <div class="edu-card">
+          <div class="edu-year">2023</div>
+          <div>
+            <div class="edu-degree">Higher Secondary Certificate (HSC)</div>
+            <div class="edu-school">Everwin Matriculation School, Chennai</div>
+            <span class="edu-score">70%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACHIEVEMENTS -->
+  <section id="achievements">
+    <div class="section-wrap">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2 class="section-title">Certificates & Achievements</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="achieve-grid">
+        <div class="achieve-card">
+          <div class="achieve-card-title">🏆 2nd Prize — Vel Tech High Tech Project Expo 2025</div>
+          <div class="achieve-card-sub">Among 50+ competing teams</div>
+        </div>
+        <div class="achieve-card">
+          <div class="achieve-card-title">🇮🇳 Smart India Hackathon 2024</div>
+          <div class="achieve-card-sub">National-level participant</div>
+        </div>
+        <div class="achieve-card">
+          <div class="achieve-card-title">🎤 CMR Project Expo 2025, Hyderabad</div>
+          <div class="achieve-card-sub">Project Presenter</div>
+        </div>
+        <div class="achieve-card">
+          <div class="achieve-card-title">🌱 TANCAM TN Impact Program 2026</div>
+          <div class="achieve-card-sub">Soil Nutrient Analyser showcase</div>
+        </div>
+        <div class="achieve-card">
+          <div class="achieve-card-title">📜 Certifications</div>
+          <div class="achieve-card-sub">IoT · PLC · SCADA · PSCAD</div>
+        </div>
+        <div class="achieve-card">
+          <div class="achieve-card-title">🤖 AI Club Member</div>
+          <div class="achieve-card-sub">S.A. Engineering College</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="section-wrap">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2 class="section-title">Contact</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="contact-inner">
+        <div class="contact-text">
+          <h2>Let's build<br><span style="color:var(--cyan)">something.</span></h2>
+          <p>I'm consistently exploring new internship opportunities, project collaborations, and full-time roles across
+            IoT, embedded systems, and comprehensive software development. Feel free to reach out directly via the form
+            or social links!</p>
+
+          <form class="contact-form" onsubmit="sendQuickMail(event)">
+            <div class="form-group">
+              <input type="text" id="mail-subject" class="form-input" placeholder="Subject" required>
+            </div>
+            <div class="form-group">
+              <textarea id="mail-body" class="form-input form-textarea" placeholder="Your Message..."
+                required></textarea>
+            </div>
+            <button type="submit" class="btn-submit">Quick Message</button>
+          </form>
+
+        </div>
+        <div class="contact-links">
+          <a class="contact-link" href="mailto:joeranjith26@gmail.com">
+            <span class="contact-link-icon">✉</span>
+            joeranjith26@gmail.com
+          </a>
+          <a class="contact-link" href="tel:+918939458959">
+            <span class="contact-link-icon">📞</span>
+            +91 89394 58959
+          </a>
+          <a class="contact-link" href="https://linkedin.com/in/joe-ranjith" target="_blank">
+            <span class="contact-link-icon">in</span>
+            linkedin.com/in/joe-ranjith
+          </a>
+          <a class="contact-link" href="https://github.com/01joeranjith" target="_blank">
+            <span class="contact-link-icon">⌥</span>
+            github.com/01joeranjith
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Designed &amp; built for Joe Ranjith L. · Chennai, Tamil Nadu · 2025</p>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cur = document.getElementById('cur');
+    const ring = document.getElementById('curRing');
+    document.addEventListener('mousemove', e => {
+      cur.style.left = e.clientX + 'px';
+      cur.style.top = e.clientY + 'px';
+      ring.style.left = e.clientX + 'px';
+      ring.style.top = e.clientY + 'px';
+    });
+
+    // Project accordion
+    function toggleProject(header) {
+      const body = header.nextElementSibling;
+      body.classList.toggle('open');
+    }
+
+    function sendQuickMail(e) {
+      e.preventDefault();
+      const subject = document.getElementById('mail-subject').value;
+      const body = document.getElementById('mail-body').value;
+      const to = 'joeranjith26@gmail.com';
+      const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.open(gmailLink, '_blank');
+    }
+
+    // --- 3D PRELOADER LOGIC ---
+    const preloader = document.getElementById('preloader');
+    const canvas = document.getElementById('preloader-canvas');
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    // Advanced Node Network Sphere
+    const radius = 1.6;
+    const geometry = new THREE.IcosahedronGeometry(radius, 2);
+
+    // Create connection lines
+    const material = new THREE.LineBasicMaterial({
+      color: 0xe5e5e5,
+      transparent: true,
+      opacity: 0.15
+    });
+    const sphere = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), material);
+    group.add(sphere);
+
+    // Create glowing nodes at vertices
+    const pointsMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.05,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending
+    });
+    const points = new THREE.Points(geometry, pointsMaterial);
+    group.add(points);
+
+    // Add ambient floating data particles
+    const particleCount = 150;
+    const posArray = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 10;
+    }
+    const pGeometry = new THREE.BufferGeometry();
+    pGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const pMaterial = new THREE.PointsMaterial({
+      size: 0.02,
+      color: 0x888888,
+      transparent: true,
+      opacity: 0.6,
+      blending: THREE.AdditiveBlending
+    });
+    const particles = new THREE.Points(pGeometry, pMaterial);
+    scene.add(particles);
+
+    // Add inner energy core
+    const coreGeometry = new THREE.IcosahedronGeometry(radius * 0.4, 1);
+    const coreMaterial = new THREE.MeshPhongMaterial({
+      color: 0xe5e5e5,
+      emissive: 0xffffff,
+      emissiveIntensity: 0.2,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.3
+    });
+    const core = new THREE.Mesh(coreGeometry, coreMaterial);
+    group.add(core);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+    const pointLight = new THREE.PointLight(0xffffff, 2, 10);
+    pointLight.position.set(2, 2, 2);
+    scene.add(pointLight);
+
+    let mouseX = 0;
+    let mouseY = 0;
+    document.addEventListener('mousemove', (event) => {
+      mouseX = (event.clientX / window.innerWidth) - 0.5;
+      mouseY = (event.clientY / window.innerHeight) - 0.5;
+    });
+
+    let rafId;
+    const clock = new THREE.Clock();
+
+    function animatePreloader() {
+      rafId = requestAnimationFrame(animatePreloader);
+      const time = clock.getElapsedTime();
+
+      // Complex rotations for continuous dynamic feel
+      group.rotation.y = time * 0.15;
+      group.rotation.x = Math.sin(time * 0.3) * 0.2;
+
+      core.rotation.y = -time * 0.3;
+      core.rotation.z = time * 0.2;
+
+      // Pulse inner core scale
+      const pulse = 1 + Math.sin(time * 2) * 0.05;
+      core.scale.set(pulse, pulse, pulse);
+
+      particles.rotation.y = -time * 0.05;
+      particles.rotation.z = time * 0.02;
+
+      // Parallax interaction
+      camera.position.x += (mouseX * 1.5 - camera.position.x) * 0.05;
+      camera.position.y += (-mouseY * 1.5 - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+
+      renderer.render(scene, camera);
+    }
+    animatePreloader();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // End preloader on click or timeout
+    let loaded = false;
+    function finishLoading() {
+      if (loaded) return;
+      loaded = true;
+      preloader.style.opacity = '0';
+      preloader.style.visibility = 'hidden';
+      // Clean up animation to save resources after fade
+      setTimeout(() => {
+        cancelAnimationFrame(rafId);
+        scene.clear();
+        renderer.dispose();
+        preloader.remove(); // Remove from DOM
+      }, 1200);
+    }
+
+    // Auto finish after minimum 3.0 seconds
+    setTimeout(finishLoading, 3000);
+    // Allow user to skip by clicking on the preloader
+    preloader.addEventListener('click', finishLoading);
+  </script>
+</body>
+
+</html>
